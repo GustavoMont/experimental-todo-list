@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "test": "concurrently -n next,jest -k --hide next \"next dev\" \"npx jest --runInBand\"",
-    "test:watch": "jest --runInBand --watchAll"
+    "test": "concurrently -n next,jest --success command-jest -k --hide next \"next dev\" \"npx jest --runInBand\"",
+    "test:watch": "jest --runInBand --watchAll",
+    "lint:eslint:check": "eslint .",
+    "lint:eslint:fix": "eslint . --fix"
   },
-  "keywords": [],
+  "keywords": [ ],
   "author": "",
   "license": "ISC",
   "description": "",
