@@ -4,7 +4,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "predev": "npm run services:up",
     "dev": "next dev",
+    "services:up": "docker compose -f infra/compose.yaml up -d",
+    "services:stop": "docker compose -f infra/compose.yaml stop",
+    "services:down": "docker compose -f infra/compose.yaml down",
     "test": "concurrently -n next,jest --success command-jest -k --hide next \"next dev\" \"npx jest --runInBand\"",
     "test:watch": "jest --runInBand --watchAll",
     "lint:eslint:check": "eslint .",
