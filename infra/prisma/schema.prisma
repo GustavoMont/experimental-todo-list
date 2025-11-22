@@ -1,0 +1,15 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/@types"
+
+}
+
+datasource db {
+  provider = "postgresql"
+  
+}
+
+model Test {
+  id      String  @id @default(cuid())
+  isCoiso Boolean
+}

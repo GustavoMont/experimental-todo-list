@@ -12,7 +12,10 @@
     "test": "concurrently -n next,jest --success command-jest -k --hide next \"next dev\" \"npx jest --runInBand\"",
     "test:watch": "jest --runInBand --watchAll",
     "lint:eslint:check": "eslint .",
-    "lint:eslint:fix": "eslint . --fix"
+    "lint:eslint:fix": "eslint . --fix",
+    "migrations:create": "npx prisma migrate dev --config infra/database/prisma.config.ts --schema infra/prisma/",
+    "migrations:up": "npx prisma migrate deploy --config infra/database/prisma.config.ts --schema infra/prisma/",
+    "db:view": "prisma studio --config infra/database/prisma.config.ts -p 5050"
   },
   "keywords": [ ],
   "author": "",
