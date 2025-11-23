@@ -11,6 +11,7 @@ const config: Config = {
   rootDir: ".",
   testTimeout: 60_000,
   globalSetup: "<rootDir>/tests/integration/global.setup.ts",
+  modulePaths: ["<rootDir>"],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

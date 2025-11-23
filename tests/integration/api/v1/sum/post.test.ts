@@ -1,3 +1,7 @@
+import { waitForAllServices } from "tests/orchestrator";
+
+beforeAll(waitForAllServices);
+
 describe("[POST] /api/v1/sum", () => {
   test("Sending only numbers in body", async () => {
     const response = await fetch("http://localhost:3000/api/v1/sum", {
