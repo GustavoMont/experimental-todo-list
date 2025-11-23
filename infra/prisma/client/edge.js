@@ -30,7 +30,7 @@ const {
   Public,
   getRuntime,
   createParam,
-} = require('./runtime/client.js')
+} = require('./runtime/wasm-compiler-edge.js')
 
 
 const Prisma = {}
@@ -81,7 +81,6 @@ Prisma.NullTypes = NullTypes
 
 
 
-  const path = require('path')
 
 /**
  * Enums
@@ -124,21 +123,22 @@ const config = {
   "clientVersion": "7.0.0",
   "engineVersion": "0c19ccc313cf9911a90d99d2ac2eb0280c76c513",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"./generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id        String   @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  // Why 254 in length? https://stackoverflow.com/a/1199238\n  email     String   @unique @db.VarChar(254)\n  // For reference, Github limits usersnames to 39 characteres.\n  username  String   @unique @db.VarChar(39)\n  // Why 60 in length? https://www.npmjs.com/package/bcrypt#hash-info\n  password  String   @db.VarChar(60)\n  // Why timestamp with timezone? https://justatheory.com/2012/04/postgres-use-timestamptz/\n  createdAt DateTime @default(now()) @db.Timestamptz()\n  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()\n\n  @@map(\"users\")\n}\n"
+  "inlineSchema": "generator client {\n  provider               = \"prisma-client-js\"\n  output                 = \"./client\"\n  generatedFileExtension = \"ts\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id        String   @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  // Why 254 in length? https://stackoverflow.com/a/1199238\n  email     String   @unique @db.VarChar(254)\n  // For reference, Github limits usersnames to 39 characteres.\n  username  String   @unique @db.VarChar(39)\n  // Why 60 in length? https://www.npmjs.com/package/bcrypt#hash-info\n  password  String   @db.VarChar(60)\n  // Why timestamp with timezone? https://justatheory.com/2012/04/postgres-use-timestamptz/\n  createdAt DateTime @default(now()) @db.Timestamptz()\n  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()\n\n  @@map(\"users\")\n}\n"
 }
 
 config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"users\"}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.compilerWasm = {
-      getRuntime: async () => require('./query_compiler_bg.js'),
-      getQueryCompilerWasmModule: async () => {
-        const { Buffer } = require('node:buffer')
-        const { wasm } = require('./query_compiler_bg.wasm-base64.js')
-        const queryCompilerWasmFileBytes = Buffer.from(wasm, 'base64')
-
-        return new WebAssembly.Module(queryCompilerWasmFileBytes)
-      }
-    }
+  getRuntime: async () => require('./query_compiler_bg.js'),
+  getQueryCompilerWasmModule: async () => {
+    const loader = (await import('#wasm-compiler-loader')).default
+    const compiler = (await loader).default
+    return compiler
+  }
+}
+if (typeof globalThis !== 'undefined' && globalThis['DEBUG'] || (typeof process !== 'undefined' && process.env && process.env.DEBUG) || undefined) {
+  Debug.enable(typeof globalThis !== 'undefined' && globalThis['DEBUG'] || (typeof process !== 'undefined' && process.env && process.env.DEBUG) || undefined)
+}
 
 const PrismaClient = getPrismaClient(config)
 exports.PrismaClient = PrismaClient

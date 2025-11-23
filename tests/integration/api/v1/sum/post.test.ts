@@ -1,5 +1,3 @@
-import prisma from "lib/prisma";
-
 describe("[POST] /api/v1/sum", () => {
   test("Sending only numbers in body", async () => {
     const response = await fetch("http://localhost:3000/api/v1/sum", {
@@ -13,7 +11,6 @@ describe("[POST] /api/v1/sum", () => {
     expect(responseBody).toEqual({
       result: 15,
     });
-    expect(await prisma.test.findMany()).toHaveLength(1);
   });
   test("Sending not numbers in body", async () => {
     const response = await fetch("http://localhost:3000/api/v1/sum", {
