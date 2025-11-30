@@ -6,7 +6,9 @@ describe("[POST] /api/v1/sum", () => {
       method: "POST",
       body: JSON.stringify([1, 2, 3, 4, 5]),
     });
+
     expect(response.status).toBe(200);
+
     const responseBody = await response.json();
     expect(responseBody).toEqual({
       result: 15,
@@ -24,7 +26,7 @@ describe("[POST] /api/v1/sum", () => {
       status_code: 400,
       message: "Você é burro? Como que vou somar uma palavra/letra?",
       action: "Remove tudo que não for número, seu cavalo",
-      error: "BadRequestError",
+      error: "ValidationError",
     });
   });
 });

@@ -1,0 +1,56 @@
+import {
+  BaseError,
+  InternalServerError,
+  NotImplementedError,
+  ValidationError,
+} from "@/infra/errors";
+import { NextRequest, NextResponse } from "next/server";
+
+type TypeOrPromise<T> = T | Promise<T>;
+
+type MiddlewareFn = (
+  req: NextRequest,
+  responseResult?: NextResponse
+) => TypeOrPromise<NextResponse> | TypeOrPromise<void>;
+
+type Endpoint = (req: NextRequest) => Promise<NextResponse>;
+
+export function createEndpoint(...middlewares: MiddlewareFn[]): Endpoint {
+  return async (req) => {
+    try {
+      let lastResponse: NextResponse;
+      for (const fn of middlewares) {
+        const response = await fn(req, lastResponse);
+        lastResponse = response || undefined;
+      }
+      if (!lastResponse) {
+        throw new NotImplementedError({
+          message: "É necessário que o último middleware tenha um retorno.",
+          action: `Confira os middlewares usados no endpoint [${req.method}] ${req.url}`,
+        });
+      }
+
+      return lastResponse;
+    } catch (error) {
+      const transformedError = handleError(error);
+      return NextResponse.json(transformedError, {
+        status: transformedError.statusCode,
+      });
+    }
+  };
+}
+
+function handleError(error: unknown): BaseError {
+  const mappedErrors = [ValidationError];
+  if (mappedErrors.some((mappedError) => error instanceof mappedError)) {
+    return error as BaseError;
+  }
+  const isDevelopmentMode = process.env.NODE_ENV !== "production";
+  if (isDevelopmentMode && error instanceof NotImplementedError) {
+    return error;
+  }
+  const internalError = new InternalServerError({ cause: error });
+  console.error(internalError);
+
+  return internalError;
+}
