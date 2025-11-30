@@ -13,11 +13,10 @@ type BaseErrorParams = {
   issues?: Issues[];
 };
 
-class BaseError extends Error {
+export class BaseError extends Error {
   readonly name: string;
   public readonly action: string;
   public readonly statusCode: number;
-  public readonly cause: unknown;
   public readonly issues: Issues[];
 
   constructor({
@@ -64,6 +63,39 @@ export class ValidationError extends BaseError {
       name: "ValidationError",
       statusCode: 400,
       issues,
+    });
+  }
+}
+
+export class InternalServerError extends BaseError {
+  constructor({
+    action,
+    cause,
+    message,
+  }: Partial<Pick<BaseErrorParams, "action" | "cause" | "message">>) {
+    super({
+      name: "InternalServerErro",
+      action: action || "Contate o time de suporte",
+      cause,
+      message: message || "Ocorreu um erro inesperado.",
+      statusCode: 500,
+    });
+  }
+}
+
+export class NotImplementedError extends BaseError {
+  constructor({
+    action,
+    cause,
+    message,
+  }: Partial<Pick<BaseErrorParams, "action" | "cause" | "message">>) {
+    super({
+      action: action || "Aguarde por noitícias ou contate o time de suporte.",
+      cause,
+      message:
+        message || "Essa função ainda não está devidamente implementada.",
+      name: "NotImplementedError",
+      statusCode: 501,
     });
   }
 }
