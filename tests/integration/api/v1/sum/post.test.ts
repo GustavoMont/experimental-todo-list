@@ -24,7 +24,7 @@ describe("[POST] /api/v1/sum", () => {
       status_code: 400,
       message: "Você é burro? Como que vou somar uma palavra/letra?",
       action: "Remove tudo que não for número, seu cavalo",
-      error: "BadRequestError",
+      error: "ValidationError",
     });
   });
 });
