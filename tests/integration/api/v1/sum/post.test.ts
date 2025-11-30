@@ -6,7 +6,9 @@ describe("[POST] /api/v1/sum", () => {
       method: "POST",
       body: JSON.stringify([1, 2, 3, 4, 5]),
     });
+
     expect(response.status).toBe(200);
+
     const responseBody = await response.json();
     expect(responseBody).toEqual({
       result: 15,

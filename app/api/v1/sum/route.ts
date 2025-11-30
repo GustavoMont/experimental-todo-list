@@ -1,8 +1,11 @@
 import { ValidationError } from "@/infra/errors";
+import { createEndpoint } from "@/lib/api-middleware";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
+export const POST = createEndpoint(postHandler);
+
+async function postHandler(request: NextRequest) {
   const body = await request.json();
   let result = 0;
   await prisma.test.create({ data: { isCoiso: true } });
