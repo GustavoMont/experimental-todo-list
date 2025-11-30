@@ -1,4 +1,5 @@
 import retry from "async-retry";
+import { DatabaseCommand } from "@/infra/database/database-commands";
 
 export async function waitForAllServices() {
   await waitForWebServer();
@@ -17,4 +18,9 @@ export async function waitForAllServices() {
       }
     }
   }
+}
+
+export async function setupDatabase() {
+  await DatabaseCommand.clearDatabase();
+  await DatabaseCommand.runPendingMigrations();
 }

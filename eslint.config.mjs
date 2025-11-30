@@ -6,7 +6,13 @@ import pluginJest from "eslint-plugin-jest";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "./infra/prisma/generated/**",
+  ]),
   eslint.configs.recommended,
   tseslint.configs.recommended,
   pluginJest.configs["flat/recommended"],
