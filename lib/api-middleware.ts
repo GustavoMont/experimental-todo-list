@@ -47,6 +47,7 @@ function handleError(error: unknown): BaseError {
   }
   const isDevelopmentMode = process.env.NODE_ENV !== "production";
   if (isDevelopmentMode && error instanceof NotImplementedError) {
+    console.error(error);
     return error;
   }
   const internalError = new InternalServerError({ cause: error });

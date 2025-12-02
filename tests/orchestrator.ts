@@ -1,5 +1,10 @@
 import retry from "async-retry";
 import { DatabaseCommand } from "@/infra/database/database-commands";
+import { CreateInput } from "@/app/users/schemas/user.schema";
+import { UserService } from "@/app/users/services/user.service";
+import { faker } from "@faker-js/faker";
+
+const userService = new UserService();
 
 export async function waitForAllServices() {
   await waitForWebServer();
@@ -23,4 +28,12 @@ export async function waitForAllServices() {
 export async function setupDatabase() {
   await DatabaseCommand.clearDatabase();
   await DatabaseCommand.runPendingMigrations();
+}
+
+export async function createUser(payload: Partial<CreateInput> = {}) {
+  return userService.create({
+    email: payload.email || faker.internet.email(),
+    username: payload.username || faker.internet.username(),
+    password: payload.password || faker.internet.password(),
+  });
 }

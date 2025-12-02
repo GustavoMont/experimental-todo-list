@@ -22,7 +22,7 @@
     "lint:eslint:fix": "eslint . --fix",
     "db:view": "prisma studio --config infra/database/prisma.config.ts -p 5050"
   },
-  "keywords": [ ],
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@faker-js/faker": "^10.1.0",
     "@types/async-retry": "^1.4.9",
     "@types/jest": "^30.0.0",
     "@types/node": "24.10.1",

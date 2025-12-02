@@ -1,3 +1,5 @@
+import { PrismaError, prismaErros } from "./prisma/errors";
+
 type Issues = {
   message: string;
   action: string;
@@ -68,11 +70,19 @@ export class ValidationError extends BaseError {
 }
 
 export class InternalServerError extends BaseError {
+  stackTrace;
   constructor({
     action,
     cause,
     message,
   }: Partial<Pick<BaseErrorParams, "action" | "cause" | "message">>) {
+    if (prismaErros.some((prismaError) => cause instanceof prismaError)) {
+      const prismaError = cause as PrismaError;
+      cause = prismaError.message
+        ? `${prismaError?.message}\n\n${prismaError.stack.slice(0, 2_000)}`
+        : "Deu erro no prisma";
+    }
+
     super({
       name: "InternalServerErro",
       action: action || "Contate o time de suporte",
