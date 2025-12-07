@@ -4,7 +4,9 @@ import {
   NotImplementedError,
   ValidationError,
 } from "@/infra/errors";
+import { formatZodError } from "@/utils/error";
 import { NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
 
 type TypeOrPromise<T> = T | Promise<T>;
 
@@ -42,6 +44,9 @@ export function createEndpoint(...middlewares: MiddlewareFn[]): Endpoint {
 
 function handleError(error: unknown): BaseError {
   const mappedErrors = [ValidationError];
+  if (error instanceof ZodError) {
+    return formatZodError(error);
+  }
   if (mappedErrors.some((mappedError) => error instanceof mappedError)) {
     return error as BaseError;
   }

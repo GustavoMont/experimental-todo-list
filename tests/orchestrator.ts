@@ -1,6 +1,6 @@
 import retry from "async-retry";
 import { DatabaseCommand } from "@/infra/database/database-commands";
-import { CreateInput } from "@/app/users/schemas/user.schema";
+import { CreateUserDTO } from "@/app/users/schemas/user.schema";
 import { UserService } from "@/app/users/services/user.service";
 import { faker } from "@faker-js/faker";
 
@@ -30,10 +30,10 @@ export async function setupDatabase() {
   await DatabaseCommand.runPendingMigrations();
 }
 
-export async function createUser(payload: Partial<CreateInput> = {}) {
+export async function createUser(payload: Partial<CreateUserDTO> = {}) {
   return userService.create({
     email: payload.email || faker.internet.email(),
-    username: payload.username || faker.internet.username(),
-    password: payload.password || faker.internet.password(),
+    username: payload.username || faker.internet.username().replace(/\W/g, "_"),
+    password: payload.password || faker.internet.password({ prefix: "9" }),
   });
 }

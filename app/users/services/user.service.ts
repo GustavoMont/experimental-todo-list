@@ -1,5 +1,5 @@
 import {
-  CreateInput,
+  CreateUserDTO,
   UserResponseDTO,
   UserSchema,
 } from "../schemas/user.schema";
@@ -31,8 +31,9 @@ export class UserService {
     return UserSchema.toUserResponseDTO(foundUser);
   }
 
-  async create(userInputValues: CreateInput): Promise<UserResponseDTO> {
-    const creationData = UserSchema.toDatabaseType(userInputValues);
+  async create(userInputValues: CreateUserDTO): Promise<UserResponseDTO> {
+    const validatedData = UserSchema.toCreateUserDTO(userInputValues);
+    const creationData = UserSchema.toDatabaseType(validatedData);
     const [emailUser, usernameUser] = await Promise.all([
       this.findByEmail(creationData.email),
       this.findByUsername(creationData.username),
