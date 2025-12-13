@@ -1,19 +1,25 @@
-import { createUser } from "@/tests/orchestrator";
+import { createUser, getServerApp } from "@/tests/orchestrator";
+import { Server } from "node:http";
+import supertest from "supertest";
+
+let server: Server;
+
+beforeAll(() => {
+  server = getServerApp();
+});
+
+afterAll(() => server?.close());
 
 describe("[POST] /api/v1/users", () => {
   describe("Anonymous user", () => {
     test("With valid data", async () => {
-      const response = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        body: JSON.stringify({
-          username: "username",
-          email: "email@email.com",
-          password: "sup3rs3nha",
-        }),
+      const response = await supertest(server).post("/api/v1/users").send({
+        username: "username",
+        email: "email@email.com",
+        password: "sup3rs3nha",
       });
-
       expect(response.status).toBe(201);
-      const responseBody = await response.json();
+      const responseBody = response.body;
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "username",
@@ -26,17 +32,14 @@ describe("[POST] /api/v1/users", () => {
       expect(Date.parse(responseBody.updatedAt)).not.toBeNaN();
     });
     test("With invalid data", async () => {
-      const response = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        body: JSON.stringify({
-          username: "a_ ",
-          email: "a",
-          password: "1234",
-        }),
+      const response = await supertest(server).post("/api/v1/users").send({
+        username: "a_ ",
+        email: "a",
+        password: "1234",
       });
 
       expect(response.status).toBe(400);
-      const responseBody = await response.json();
+      const responseBody = response.body;
       expect(responseBody).toEqual({
         error: "ValidationError",
         message: "Os dados enviados estão inválidos.",
@@ -68,17 +71,14 @@ describe("[POST] /api/v1/users", () => {
       await createUser({
         email: "email@duplicado.com",
       });
-      const response = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        body: JSON.stringify({
-          username: "new_username",
-          email: "email@duplicado.com",
-          password: "sup3rs3nha",
-        }),
-      });
 
+      const response = await supertest(server).post("/api/v1/users").send({
+        username: "new_username",
+        email: "email@duplicado.com",
+        password: "sup3rs3nha",
+      });
       expect(response.status).toBe(400);
-      const responseBody = await response.json();
+      const responseBody = response.body;
       expect(responseBody).toEqual({
         error: "ValidationError",
         message: "E-mail já cadastrado no sistema.",
@@ -90,17 +90,14 @@ describe("[POST] /api/v1/users", () => {
       await createUser({
         username: "username_duplicado",
       });
-      const response = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        body: JSON.stringify({
-          email: "new_email@email.com",
-          username: "username_duplicado",
-          password: "sup3rs3nha",
-        }),
-      });
 
+      const response = await supertest(server).post("/api/v1/users").send({
+        email: "new_email@email.com",
+        username: "username_duplicado",
+        password: "sup3rs3nha",
+      });
       expect(response.status).toBe(400);
-      const responseBody = await response.json();
+      const responseBody = response.body;
       expect(responseBody).toEqual({
         error: "ValidationError",
         message: "Username já cadastrado no sistema.",
