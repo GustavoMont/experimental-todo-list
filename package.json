@@ -6,10 +6,10 @@
   "scripts": {
     "predev": "npm run services:up && npm run services:wait-for-db && npm run migrations:up",
     "dev": "node infra/scripts/start-development.js",
-    "pretest": "npm run services:db",
+    "pretest": "npm run services:db && npx tsx infra/scripts/create-test-db.ts",
     "test": "jest --runInBand --forceExit",
     "posttest": "npm run services:down",
-    "pretest:watch": "npm run services:db",
+    "pretest:watch": "npm run pretest",
     "test:watch": "jest --runInBand --watchAll",
     "premigrations:create": "npm run services:db",
     "migrations:create": "npx prisma migrate dev --config infra/database/prisma.config.ts",
@@ -24,7 +24,7 @@
     "lint:eslint:fix": "eslint . --fix",
     "db:view": "prisma studio --config infra/database/prisma.config.ts -p 5050"
   },
-  "keywords": [],
+  "keywords": [ ],
   "author": "",
   "license": "ISC",
   "description": "",
