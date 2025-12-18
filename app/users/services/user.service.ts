@@ -8,11 +8,18 @@ import {
   UserRepository,
 } from "../repositories/user.repository";
 import { ValidationError } from "@/infra/errors";
+import {
+  passwordService,
+  PasswordService,
+} from "@/app/password/services/password.service";
 
 export class UserService {
   private readonly userRepository: IUserRepository;
+  private readonly passwordService: PasswordService;
+
   constructor(userRepository?: IUserRepository) {
     this.userRepository = userRepository || new UserRepository();
+    this.passwordService = passwordService;
   }
 
   async findByEmail(email: string): Promise<UserResponseDTO> {
@@ -50,6 +57,9 @@ export class UserService {
         action: "Utilize outro username para realizar esta operação.",
       });
     }
+    creationData.password = await this.passwordService.hash(
+      creationData.password
+    );
     const createdUser = await this.userRepository.create(creationData);
     return UserSchema.toUserResponseDTO(createdUser);
   }

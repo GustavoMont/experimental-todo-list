@@ -109,3 +109,13 @@ export class NotImplementedError extends BaseError {
     });
   }
 }
+
+export class ServiceError extends BaseError {
+  constructor({
+    action = "Verifique o status do serviço solicitado",
+    cause,
+    message = "O serviço solicitado está indisponível no moment",
+  }: Partial<Pick<BaseErrorParams, "action" | "cause" | "message">>) {
+    super({ action, message, cause, name: "ServiceError", statusCode: 503 });
+  }
+}
