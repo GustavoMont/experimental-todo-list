@@ -1,3 +1,4 @@
+import { passwordService } from "@/app/password/services/password.service";
 import { createUser, getServerApp } from "@/tests/orchestrator";
 import { Server } from "node:http";
 import supertest from "supertest";
@@ -13,10 +14,11 @@ afterAll(() => server?.close());
 describe("[POST] /api/v1/users", () => {
   describe("Anonymous user", () => {
     test("With valid data", async () => {
+      const testPassword = "test_p4assword";
       const response = await supertest(server).post("/api/v1/users").send({
         username: "username",
         email: "email@email.com",
-        password: "sup3rs3nha",
+        password: testPassword,
       });
       expect(response.status).toBe(201);
       const responseBody = response.body;
@@ -24,12 +26,17 @@ describe("[POST] /api/v1/users", () => {
         id: responseBody.id,
         username: "username",
         email: "email@email.com",
-        password: "sup3rs3nha",
+        password: responseBody.password,
         createdAt: responseBody.createdAt,
         updatedAt: responseBody.updatedAt,
       });
       expect(Date.parse(responseBody.createdAt)).not.toBeNaN();
       expect(Date.parse(responseBody.updatedAt)).not.toBeNaN();
+
+      expect(responseBody.password).not.toBe(testPassword);
+      expect(
+        await passwordService.compare(testPassword, responseBody.password)
+      ).toBe(true);
     });
     test("With invalid data", async () => {
       const response = await supertest(server).post("/api/v1/users").send({
