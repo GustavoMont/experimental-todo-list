@@ -6,6 +6,7 @@ import { faker } from "@faker-js/faker";
 import { createServer } from "node:http";
 import { NextRequest } from "next/server";
 import { resolve } from "node:path";
+import { NotImplementedError } from "@/infra/errors";
 
 const userService = new UserService();
 
@@ -45,8 +46,20 @@ export function getServerApp() {
   return createServer(async (req, res) => {
     const pathArray = req.url.split("/");
     const routePath = resolve("app", ...pathArray, "route");
-    const route = await import(routePath);
-    if (!route) throw new Error("Rota inválida");
+    let route;
+    try {
+      route = await import(routePath);
+    } catch (error) {
+      console.log(error);
+      res.statusCode = 404;
+      const notFoundError = new NotImplementedError({
+        action: "Verifique se a rota está correta",
+        message: "Rota não encontrada",
+      });
+      const jsonError = JSON.stringify(notFoundError.toJSON());
+      res.end(jsonError);
+      return;
+    }
     const methodHandler = route[req.method];
     if (!methodHandler) throw new Error("Método inválido");
     const chunks = [];
