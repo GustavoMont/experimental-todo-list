@@ -19,5 +19,22 @@ model User {
   createdAt DateTime @default(now()) @db.Timestamptz()
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()
 
+  sessions Session[]
+
   @@map("users")
+}
+
+model Session {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token     String   @db.VarChar(96) @unique
+  expiresAt DateTime @db.Timestamptz()
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+  // Relationships
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id])
+
+
+  @@map("sessions")
 }
