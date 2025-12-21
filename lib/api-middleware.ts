@@ -2,6 +2,7 @@ import {
   BaseError,
   InternalServerError,
   NotImplementedError,
+  UnauthorizedError,
   ValidationError,
 } from "@/infra/errors";
 import { formatZodError } from "@/utils/error";
@@ -43,7 +44,7 @@ export function createEndpoint(...middlewares: MiddlewareFn[]): Endpoint {
 }
 
 function handleError(error: unknown): BaseError {
-  const mappedErrors = [ValidationError];
+  const mappedErrors = [ValidationError, UnauthorizedError];
   if (error instanceof ZodError) {
     return formatZodError(error);
   }
