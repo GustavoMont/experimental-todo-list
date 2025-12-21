@@ -22,7 +22,7 @@ export class UserService {
     this.passwordService = passwordService;
   }
 
-  async findByEmail(email: string): Promise<UserResponseDTO> {
+  async findByEmail(email: string): Promise<UserResponseDTO | null> {
     const foundUser = await this.userRepository.findUnique({ email });
     if (!foundUser) {
       return null;

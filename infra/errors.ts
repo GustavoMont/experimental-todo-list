@@ -69,6 +69,22 @@ export class ValidationError extends BaseError {
   }
 }
 
+export class UnauthorizedError extends BaseError {
+  constructor({
+    action = "Verifique as credenciais do usuário",
+    cause,
+    message = "Usuário não autenticado",
+  }: Partial<Pick<BaseErrorParams, "action" | "cause" | "message">>) {
+    super({
+      action,
+      message,
+      name: "UnauthorizedError",
+      statusCode: 401,
+      cause,
+    });
+  }
+}
+
 export class InternalServerError extends BaseError {
   stackTrace;
   constructor({
