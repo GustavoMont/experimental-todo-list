@@ -15,6 +15,9 @@ model User {
   username  String   @unique @db.VarChar(39)
   // Why 60 in length? https://www.npmjs.com/package/bcrypt#hash-info
   password  String   @db.VarChar(60)
+
+  features String[]
+
   // Why timestamp with timezone? https://justatheory.com/2012/04/postgres-use-timestamptz/
   createdAt DateTime @default(now()) @db.Timestamptz()
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()

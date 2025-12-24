@@ -26,6 +26,7 @@ describe("[POST] /api/v1/users", () => {
         id: responseBody.id,
         username: "username",
         email: "email@email.com",
+        features: ["create:session"],
         password: responseBody.password,
         createdAt: responseBody.createdAt,
         updatedAt: responseBody.updatedAt,

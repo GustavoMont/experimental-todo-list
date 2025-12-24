@@ -60,7 +60,14 @@ export class UserService {
     creationData.password = await this.passwordService.hash(
       creationData.password
     );
-    const createdUser = await this.userRepository.create(creationData);
+    const createdUser = await this.userRepository.create({
+      ...creationData,
+      features: this.getDefaultFeatures(),
+    });
     return UserSchema.toUserResponseDTO(createdUser);
+  }
+
+  private getDefaultFeatures(): string[] {
+    return ["create:session"];
   }
 }
