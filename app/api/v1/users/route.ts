@@ -1,8 +1,12 @@
 import { UserService } from "@/app/users/services/user.service";
-import { createEndpoint } from "@/lib/api-middleware";
+
+import { EndpointBuilder } from "@/lib/endpoint-builder";
+import { onError } from "@/utils/api";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = createEndpoint(postHandler);
+const endpointBuilder = new EndpointBuilder();
+
+export const { POST } = endpointBuilder.post(postHandler).build({ onError });
 
 async function postHandler(req: NextRequest) {
   const userService = new UserService();

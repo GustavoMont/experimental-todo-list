@@ -1,14 +1,17 @@
 import { authenticationService } from "@/app/authentication/services/authentication.service";
 import { SessionService } from "@/app/sessions/services/session.service";
 import { UnauthorizedError } from "@/infra/errors";
-import { createEndpoint } from "@/lib/api-middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { enviroment } from "@/infra/enviroment";
 import { cookieService } from "@/infra/cookies";
+import { EndpointBuilder } from "@/lib/endpoint-builder";
+import { onError } from "@/utils/api";
+
+const endpointBuilder = new EndpointBuilder();
+
+export const { POST } = endpointBuilder.post(postHandler).build({ onError });
 
 const sessionService = new SessionService();
-
-export const POST = createEndpoint(postHandler);
 
 async function postHandler(req: NextRequest) {
   try {
