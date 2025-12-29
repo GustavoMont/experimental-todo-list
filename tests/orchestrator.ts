@@ -7,8 +7,10 @@ import { createServer } from "node:http";
 import { NextRequest } from "next/server";
 import { resolve } from "node:path";
 import { NotImplementedError } from "@/infra/errors";
+import { SessionService } from "@/app/sessions/services/session.service";
 
 const userService = new UserService();
+const sessionService = new SessionService();
 
 export async function waitForAllServices() {
   await waitForWebServer();
@@ -40,6 +42,10 @@ export async function createUser(payload: Partial<CreateUserDTO> = {}) {
     username: payload.username || faker.internet.username().replace(/\W/g, "_"),
     password: payload.password || faker.internet.password({ prefix: "9" }),
   });
+}
+
+export async function createSession(userId: string) {
+  return sessionService.create({ userId });
 }
 
 export function getServerApp() {

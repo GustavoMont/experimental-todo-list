@@ -1,5 +1,5 @@
 import { passwordService } from "@/app/password/services/password.service";
-import { createUser, getServerApp } from "@/tests/orchestrator";
+import { createSession, createUser, getServerApp } from "@/tests/orchestrator";
 import { Server } from "node:http";
 import supertest from "supertest";
 
@@ -111,6 +111,30 @@ describe("[POST] /api/v1/users", () => {
         message: "Username já cadastrado no sistema.",
         action: "Utilize outro username para realizar esta operação.",
         status_code: 400,
+      });
+    });
+  });
+  describe("With Default User", () => {
+    test("Without required permission", async () => {
+      const createdUser = await createUser();
+      const session = await createSession(createdUser.id);
+      const testPassword = "test_p4$$W0rd";
+      const response = await supertest(server)
+        .post("/api/v1/users")
+        .set("Cookie", [`access_token=${session.token}`])
+        .send({
+          username: "username_1",
+          email: "email_1@email.com",
+          password: testPassword,
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
+        error: "ForbiddenError",
+        message:
+          "Usuário não possui permissões necessários para executar essa ação.",
+        action: "Verifique se o usuário possui permissão necessária.",
+        status_code: 403,
       });
     });
   });
