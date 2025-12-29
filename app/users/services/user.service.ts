@@ -67,6 +67,13 @@ export class UserService {
     return UserSchema.toUserResponseDTO(createdUser);
   }
 
+  async findById(id: string) {
+    const user = await this.userRepository.findUnique({ id });
+    if (!user) return null;
+
+    return UserSchema.toUserResponseDTO(user);
+  }
+
   private getDefaultFeatures(): string[] {
     return ["create:session"];
   }
