@@ -85,6 +85,22 @@ export class UnauthorizedError extends BaseError {
   }
 }
 
+export class ForbiddenError extends BaseError {
+  constructor({
+    action = "Verifique se o usuário possui permissão necessária.",
+    cause,
+    message = "Usuário não possui permissões necessários para executar essa ação.",
+  }: Partial<Pick<BaseErrorParams, "action" | "cause" | "message">>) {
+    super({
+      action,
+      message,
+      name: "ForbiddenError",
+      statusCode: 403,
+      cause,
+    });
+  }
+}
+
 export class InternalServerError extends BaseError {
   stackTrace;
   constructor({

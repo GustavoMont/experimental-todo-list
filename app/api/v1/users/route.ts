@@ -1,12 +1,12 @@
 import { UserService } from "@/app/users/services/user.service";
-
-import { EndpointBuilder } from "@/lib/endpoint-builder";
-import { onError } from "@/utils/api";
+import { canRequest, createEndpointWithUser, onError } from "@/utils/api";
 import { NextRequest, NextResponse } from "next/server";
 
-const endpointBuilder = new EndpointBuilder();
+const endpointBuilder = createEndpointWithUser();
 
-export const { POST } = endpointBuilder.post(postHandler).build({ onError });
+export const { POST } = endpointBuilder
+  .post(canRequest("create:user"), postHandler)
+  .build({ onError });
 
 async function postHandler(req: NextRequest) {
   const userService = new UserService();

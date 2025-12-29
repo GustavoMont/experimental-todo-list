@@ -19,13 +19,6 @@ export class SessionService {
     return 1_000 * 60 * 60 * 24 * 7; // seven days
   }
 
-  private generateExpiresAt(): Date {
-    return new Date(Date.now() + this.getExpirationsInMiliseconds());
-  }
-  private generateToken(): string {
-    return randomBytes(48).toString("hex");
-  }
-
   async create(body: CreateSessionDTO): Promise<ResponseSessionDTO> {
     const validated = this.schema.toCreateSessionDTO(body);
     const expiresAt = this.generateExpiresAt();
@@ -37,5 +30,23 @@ export class SessionService {
     });
     const createdSession = await this.sessionRepository.create(sessionPayload);
     return this.schema.toResponseDTO(createdSession);
+  }
+
+  async findValidByToken(token: string): Promise<ResponseSessionDTO> {
+    const session = await this.sessionRepository.findUniqueBy({ token });
+    if (!session || this.isExpired(session.expiresAt)) return null;
+
+    return this.schema.toResponseDTO(session);
+  }
+
+  isExpired(expiresAt: Date): boolean {
+    return new Date(expiresAt) < new Date();
+  }
+
+  private generateExpiresAt(): Date {
+    return new Date(Date.now() + this.getExpirationsInMiliseconds());
+  }
+  private generateToken(): string {
+    return randomBytes(48).toString("hex");
   }
 }

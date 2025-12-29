@@ -29,6 +29,7 @@ export type UserResponseDTO = {
   id: string;
   password: string;
   email: string;
+  features: string[];
   username: string;
   createdAt: string;
   updatedAt: string;
@@ -55,6 +56,7 @@ export class UserSchema {
       password: user.password || undefined,
       updatedAt: user.updatedAt || undefined,
       username: user.username || undefined,
+      features: user.features || [],
     };
   }
 }
