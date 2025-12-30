@@ -44,6 +44,10 @@ export async function createUser(payload: Partial<CreateUserDTO> = {}) {
   });
 }
 
+export function createAccessTokenCookie(accessToken: string) {
+  return `access_token=${accessToken}`;
+}
+
 export async function createSession(userId: string) {
   return sessionService.create({ userId });
 }
