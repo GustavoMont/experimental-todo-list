@@ -74,7 +74,7 @@ export class UserService {
     return UserSchema.toUserResponseDTO(user);
   }
 
-  private getDefaultFeatures(): string[] {
-    return ["create:session", "delete:session"];
+  getDefaultFeatures(): string[] {
+    return ["create:session", "delete:session", "create:task"];
   }
 }

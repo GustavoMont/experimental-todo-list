@@ -1,9 +1,11 @@
 import { passwordService } from "@/app/password/services/password.service";
+import { UserService } from "@/app/users/services/user.service";
 import { createSession, createUser, getServerApp } from "@/tests/orchestrator";
 import { Server } from "node:http";
 import supertest from "supertest";
 
 let server: Server;
+const userService = new UserService();
 
 beforeAll(() => {
   server = getServerApp();
@@ -26,7 +28,7 @@ describe("[POST] /api/v1/users", () => {
         id: responseBody.id,
         username: "username",
         email: "email@email.com",
-        features: ["create:session", "delete:session"],
+        features: userService.getDefaultFeatures(),
         password: responseBody.password,
         createdAt: responseBody.createdAt,
         updatedAt: responseBody.updatedAt,
