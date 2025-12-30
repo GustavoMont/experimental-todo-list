@@ -24,4 +24,11 @@ export class SessionRepository {
       },
     });
   }
+
+  async update(id: string, session: Session) {
+    return this.db.session.update({
+      where: { id },
+      data: session,
+    });
+  }
 }

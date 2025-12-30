@@ -1,9 +1,11 @@
+import { NotFoundError } from "@/infra/errors";
 import { SessionRepository } from "../repositories/session.repository";
 import {
   CreateSessionDTO,
   ResponseSessionDTO,
   sessionSchema,
   SessionSchema,
+  UpdateSessionDTO,
 } from "../schemas/session.schema";
 import { randomBytes } from "node:crypto";
 
@@ -32,9 +34,35 @@ export class SessionService {
     return this.schema.toResponseDTO(createdSession);
   }
 
+  async update(id: string, changes: UpdateSessionDTO) {
+    await this.findById(id);
+    const validatedData = this.schema.toUpdateSessionDTO(changes);
+    const session = this.schema.toSessionRepository(validatedData);
+    const updatedSession = await this.sessionRepository.update(id, session);
+    return this.schema.toResponseDTO(updatedSession);
+  }
+
+  async expiresById(id: string) {
+    const oneMinute = 1_000 * 60;
+    const oneMinuteAgo = Date.now() - oneMinute;
+    const expiresDate = new Date(oneMinuteAgo);
+    await this.update(id, { expiresAt: expiresDate });
+  }
+
   async findValidByToken(token: string): Promise<ResponseSessionDTO> {
     const session = await this.sessionRepository.findUniqueBy({ token });
     if (!session || this.isExpired(session.expiresAt)) return null;
+
+    return this.schema.toResponseDTO(session);
+  }
+
+  async findById(id: string) {
+    const session = await this.sessionRepository.findUniqueBy({ id });
+    if (!session)
+      throw new NotFoundError({
+        action: "Verifique se o id fornecido está correto",
+        message: "Sessão não encontrada.",
+      });
 
     return this.schema.toResponseDTO(session);
   }

@@ -4,12 +4,19 @@ import { UnauthorizedError } from "@/infra/errors";
 import { NextRequest, NextResponse } from "next/server";
 import { enviroment } from "@/infra/enviroment";
 import { cookieService } from "@/infra/cookies";
-import { EndpointBuilder } from "@/lib/endpoint-builder";
-import { onError } from "@/utils/api";
+import {
+  canRequest,
+  createEndpointWithUser,
+  getHeadersWithExpiredToken,
+  onError,
+} from "@/utils/api";
 
-const endpointBuilder = new EndpointBuilder();
+const endpointBuilder = createEndpointWithUser();
 
-export const { POST } = endpointBuilder.post(postHandler).build({ onError });
+export const { POST, DELETE } = endpointBuilder
+  .post(canRequest("create:session"), postHandler)
+  .delete(canRequest("delete:session"), deleteHandler)
+  .build({ onError });
 
 const sessionService = new SessionService();
 
@@ -48,4 +55,12 @@ async function postHandler(req: NextRequest) {
     }
     throw error;
   }
+}
+
+async function deleteHandler(req: NextRequest) {
+  const accessToken = req.cookies.get("access_token")?.value || "";
+  const session = await sessionService.findValidByToken(accessToken);
+  await sessionService.expiresById(session.id);
+  const headers = getHeadersWithExpiredToken();
+  return new NextResponse(null, { headers, status: 204 });
 }
