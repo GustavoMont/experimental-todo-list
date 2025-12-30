@@ -15,11 +15,15 @@ import { SessionService } from "@/app/sessions/services/session.service";
 import { ResponseSessionDTO } from "@/app/sessions/schemas/session.schema";
 import { UserService } from "@/app/users/services/user.service";
 import { authorizationService } from "@/app/authorization/services/authorization.service";
+import { cookieService } from "@/infra/cookies";
 
 export function onError(error: unknown) {
   const transformedError = handleError(error);
+  const { headers } = onError(transformedError);
+
   return NextResponse.json(transformedError, {
     status: transformedError.statusCode,
+    headers,
   });
 
   function handleError(error: unknown): BaseError {
@@ -40,6 +44,15 @@ export function onError(error: unknown) {
 
     return internalError;
   }
+
+  function onError(error: BaseError): ResponseInit {
+    const cause = error.cause;
+    if (!cause) return {};
+    const isAnauthorized = cause instanceof UnauthorizedError;
+    if (isAnauthorized) return { headers: getHeadersWithExpiredToken() };
+
+    return {};
+  }
 }
 
 export function createEndpointWithUser() {
@@ -56,10 +69,32 @@ export function generateAnonymousUser() {
 export function canRequest(feature: string): MiddlewareFn {
   return async (req: NextRequestWithContext) => {
     const user = req.context.user || generateAnonymousUser();
-    if (!authorizationService.can(user, feature)) {
-      throw new ForbiddenError({});
-    }
+    if (authorizationService.can(user, feature)) return;
+
+    const isAnonymousUser = !("id" in user);
+    const hasAccessToken = req.cookies.has("access_token");
+    const isAnauthorized = isAnonymousUser && hasAccessToken;
+    const unauthorized = new UnauthorizedError({
+      action: "Faça login para continuar.",
+      message: "Usuário não autenticado.",
+    });
+    const cause = isAnauthorized ? unauthorized : undefined;
+    throw new ForbiddenError({ cause });
   };
+}
+
+export function getHeadersWithExpiredToken() {
+  const setCookie = cookieService.createCookie(
+    { name: "access_token", value: "invalid" },
+    {
+      httpOnly: true,
+      path: "/",
+      maxAge: -1,
+    }
+  );
+  const headers = new Headers();
+  headers.set("Set-Cookie", setCookie);
+  return headers;
 }
 
 async function injectUserOrAnonymous(req: NextRequest) {

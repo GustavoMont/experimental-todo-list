@@ -75,6 +75,6 @@ export class UserService {
   }
 
   private getDefaultFeatures(): string[] {
-    return ["create:session"];
+    return ["create:session", "delete:session"];
   }
 }

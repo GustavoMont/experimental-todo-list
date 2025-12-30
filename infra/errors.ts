@@ -69,6 +69,22 @@ export class ValidationError extends BaseError {
   }
 }
 
+export class NotFoundError extends BaseError {
+  constructor({
+    action = "Verifique se os dados informados estão corretos.",
+    cause,
+    message = "Recurso não encontrado",
+  }: Partial<Pick<BaseErrorParams, "action" | "cause" | "message">>) {
+    super({
+      cause,
+      action,
+      message,
+      name: "NotFoundError",
+      statusCode: 404,
+    });
+  }
+}
+
 export class UnauthorizedError extends BaseError {
   constructor({
     action = "Verifique as credenciais do usuário",

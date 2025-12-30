@@ -5,6 +5,10 @@ const createSessionSchema = z.object({
   userId: z.string(),
 });
 
+const updateSessionSchema = z.object({
+  expiresAt: z.coerce.date(),
+});
+
 const responseSessionSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -15,11 +19,16 @@ const responseSessionSchema = z.object({
 });
 
 export type CreateSessionDTO = z.infer<typeof createSessionSchema>;
+export type UpdateSessionDTO = z.infer<typeof updateSessionSchema>;
 export type ResponseSessionDTO = z.infer<typeof responseSessionSchema>;
 
 export class SessionSchema {
   toCreateSessionDTO(body: unknown) {
     return createSessionSchema.parse(body);
+  }
+
+  toUpdateSessionDTO(body: unknown) {
+    return updateSessionSchema.parse(body);
   }
 
   toResponseDTO(session: Session): ResponseSessionDTO {
