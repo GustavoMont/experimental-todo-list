@@ -11,7 +11,12 @@ export class EndpointBuilder {
   }
 
   post(...middlewares: MiddlewareFn[]) {
-    this.middlewares["POST"] = middlewares;
+    this.setEndpoint("POST", middlewares);
+    return this;
+  }
+
+  delete(...middlewares: MiddlewareFn[]) {
+    this.setEndpoint("DELETE", middlewares);
     return this;
   }
 
@@ -30,6 +35,10 @@ export class EndpointBuilder {
       {}
     );
     return endpoints;
+  }
+
+  private setEndpoint(method: AllowedMethods, middlewares: MiddlewareFn[]) {
+    this.middlewares[method] = middlewares;
   }
 
   private createEndpoint(
@@ -71,7 +80,7 @@ export class EndpointBuilder {
 
 type TypeOrPromise<T> = T | Promise<T>;
 
-type AllowedMethods = "POST";
+type AllowedMethods = "POST" | "DELETE";
 
 type EndpointMiddlewares = {
   [key in AllowedMethods]?: MiddlewareFn[];
