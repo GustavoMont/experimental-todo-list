@@ -49,13 +49,13 @@ export async function createUser(payload: Partial<CreateUserDTO> = {}) {
 }
 
 export async function createTask(payload: Partial<CreateTaskDTO> = {}) {
-  const userId = payload.userId ?? (await createUser()).id;
+  const userId = payload.userId || (await createUser()).id;
   return taskService.create({
     dueDate: faker.date.future(),
     name: faker.book.title(),
     description: faker.hacker.phrase(),
-    userId,
     ...payload,
+    userId,
   });
 }
 

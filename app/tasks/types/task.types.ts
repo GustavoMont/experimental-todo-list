@@ -8,3 +8,7 @@ export type Task = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type TaskFilters = {
+  userId?: string;
+};

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/infra/prisma/generated";
+import { Prisma, PrismaClient } from "@/infra/prisma/generated";
 import prisma from "@/lib/prisma";
 import { Task } from "../types/task.types";
 
@@ -12,11 +12,17 @@ export class TaskRepository {
     return this.db.task.create({ data: task });
   }
 
-  async findById(id: string) {
+  findMany(where: Prisma.TaskWhereInput = {}) {
+    return this.db.task.findMany({
+      where,
+    });
+  }
+
+  findById(id: string) {
     return this.db.task.findUnique({ where: { id } });
   }
 
-  async deleteById(id: string) {
+  deleteById(id: string) {
     return this.db.task.delete({ where: { id } });
   }
 }

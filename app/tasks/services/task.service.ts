@@ -7,6 +7,7 @@ import {
 import { TaskRepository } from "../repositories/task.repository";
 import { NotFoundError } from "@/infra/errors";
 import z from "zod";
+import { TaskFilters } from "../types/task.types";
 
 export class TaskService {
   private readonly schema: TaskSchema;
@@ -21,6 +22,11 @@ export class TaskService {
     const creationData = this.schema.toTaskRepository(validatedTask);
     const createdTask = await this.taskRepository.create(creationData);
     return this.schema.toResponseDTO(createdTask);
+  }
+
+  async findMany(where: TaskFilters = {}) {
+    const tasks = await this.taskRepository.findMany(where);
+    return tasks.map(this.schema.toResponseDTO);
   }
 
   async findById(id: string): Promise<ResponseTaskDTO> {
