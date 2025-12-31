@@ -14,9 +14,41 @@ import { NextResponse } from "next/server";
 const endpointBuilder = createEndpointWithUser();
 const taskService = new TaskService();
 
+endpointBuilder.get(canRequest("view:task"), getHandler);
 endpointBuilder.delete(canRequest("delete:task"), deleteHandler);
 
-export const { DELETE } = endpointBuilder.build({ onError });
+export const { GET, DELETE } = endpointBuilder.build({ onError });
+
+async function getHandler(
+  req: NextRequestWithContext,
+  { params }: Context<{ id: string }>
+) {
+  const { id } = await params;
+
+  try {
+    const task = await taskService.findById(id);
+    const requestUser = req.context.user ?? generateAnonymousUser();
+    const canView = authorizationService.can(requestUser, "view:task", task);
+    if (!canView) {
+      throw new ForbiddenError({
+        message:
+          "Você não tem permissão para visualizar tarefa de outros usuários.",
+        action: "Verifique se você tem a permissão necessária.",
+      });
+    }
+    return NextResponse.json(task);
+  } catch (error) {
+    if (error instanceof NotFoundError || error instanceof ForbiddenError) {
+      throw new ForbiddenError({
+        message: "Você não tem permissão para visualizar essa tarefa.",
+        action: "Verifique se informou a tarefa correta.",
+        cause: error,
+      });
+    }
+
+    throw error;
+  }
+}
 
 async function deleteHandler(
   req: NextRequestWithContext,
@@ -49,6 +81,7 @@ async function deleteHandler(
         cause: error,
       });
     }
+
     throw error;
   }
 }

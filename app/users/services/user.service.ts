@@ -75,6 +75,12 @@ export class UserService {
   }
 
   getDefaultFeatures(): string[] {
-    return ["create:session", "delete:session", "create:task", "delete:task"];
+    return [
+      "create:session",
+      "delete:session",
+      "create:task",
+      "view:task",
+      "delete:task",
+    ];
   }
 }
