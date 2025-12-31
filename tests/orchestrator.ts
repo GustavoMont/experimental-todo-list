@@ -6,8 +6,9 @@ import { faker } from "@faker-js/faker";
 import { createServer } from "node:http";
 import { NextRequest } from "next/server";
 import { resolve } from "node:path";
-import { NotImplementedError } from "@/infra/errors";
+import { NotFoundError, NotImplementedError } from "@/infra/errors";
 import { SessionService } from "@/app/sessions/services/session.service";
+import { readdir } from "node:fs/promises";
 
 const userService = new UserService();
 const sessionService = new SessionService();
@@ -54,11 +55,12 @@ export async function createSession(userId: string) {
 
 export function getServerApp() {
   return createServer(async (req, res) => {
-    const pathArray = req.url.split("/");
-    const routePath = resolve("app", ...pathArray, "route");
     let route;
+    let ctx;
     try {
-      route = await import(routePath);
+      const { route: routeImport, context } = await getRouteByUrl(req.url);
+      route = routeImport;
+      ctx = context;
     } catch (error) {
       console.log(error);
       res.statusCode = 404;
@@ -85,9 +87,38 @@ export function getServerApp() {
       method: req.method,
     });
 
-    const response = await methodHandler(nextRequest);
+    const response = await methodHandler(nextRequest, ctx);
     res.statusCode = response.status;
     response.headers.forEach((v, k) => res.setHeader(k, v));
     res.end(Buffer.from(await response.arrayBuffer()));
+  });
+}
+
+async function getRouteByUrl(url: string) {
+  const pathArray = url.split("/");
+  if (pathArray.length <= 4) {
+    const routePath = resolve("app", ...pathArray, "route");
+    return { route: await import(routePath) };
+  }
+  const baseEndpointPathArray = pathArray.slice(0, 4);
+  const folders = await readdir(resolve("app", ...baseEndpointPathArray));
+
+  const dynamicRoute = folders.find((folder) => folder.startsWith("["));
+  if (dynamicRoute) {
+    const routePath = resolve(
+      "app",
+      ...baseEndpointPathArray,
+      dynamicRoute,
+      "route"
+    );
+    const paramName = dynamicRoute.replace(/\[/g, "").replace(/\]/g, "");
+
+    const params = Promise.resolve({ [paramName]: pathArray.at(-1) });
+    return { route: await import(routePath), context: { params } };
+  }
+
+  throw new NotFoundError({
+    message: "Rota não encontrada.",
+    action: "Verifique a rota que está sendo testada",
   });
 }
