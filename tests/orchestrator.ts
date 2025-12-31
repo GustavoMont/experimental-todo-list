@@ -8,9 +8,12 @@ import { NextRequest } from "next/server";
 import { resolve } from "node:path";
 import { NotFoundError, NotImplementedError } from "@/infra/errors";
 import { SessionService } from "@/app/sessions/services/session.service";
+import { TaskService } from "@/app/tasks/services/task.service";
+import { CreateTaskDTO } from "@/app/tasks/schemas/task.schema";
 import { readdir } from "node:fs/promises";
 
 const userService = new UserService();
+const taskService = new TaskService();
 const sessionService = new SessionService();
 
 export async function waitForAllServices() {
@@ -42,6 +45,17 @@ export async function createUser(payload: Partial<CreateUserDTO> = {}) {
     email: payload.email || faker.internet.email(),
     username: payload.username || faker.internet.username().replace(/\W/g, "_"),
     password: payload.password || faker.internet.password({ prefix: "9" }),
+  });
+}
+
+export async function createTask(payload: Partial<CreateTaskDTO> = {}) {
+  const userId = payload.userId ?? (await createUser()).id;
+  return taskService.create({
+    dueDate: faker.date.future(),
+    name: faker.book.title(),
+    description: faker.hacker.phrase(),
+    userId,
+    ...payload,
   });
 }
 

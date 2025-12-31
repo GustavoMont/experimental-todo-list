@@ -11,4 +11,12 @@ export class TaskRepository {
   create(task: Task) {
     return this.db.task.create({ data: task });
   }
+
+  async findById(id: string) {
+    return this.db.task.findUnique({ where: { id } });
+  }
+
+  async deleteById(id: string) {
+    return this.db.task.delete({ where: { id } });
+  }
 }
