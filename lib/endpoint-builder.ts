@@ -98,7 +98,7 @@ type BuildOptions = {
   ): Promise<NextResponse> | NextResponse;
 };
 
-export type Context<T extends object = never> = { params: Awaited<T> };
+export type Context<T extends object = never> = { params: Promise<T> };
 
 export type MiddlewareFn<T extends object = never> = (
   req: NextRequest,
