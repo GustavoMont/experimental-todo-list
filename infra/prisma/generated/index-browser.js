@@ -139,6 +139,17 @@ exports.Prisma.SessionScalarFieldEnum = {
   userId: 'userId'
 };
 
+exports.Prisma.TaskScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  dueDate: 'dueDate',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -149,10 +160,16 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Session: 'Session'
+  Session: 'Session',
+  Task: 'Task'
 };
 
 /**

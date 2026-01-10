@@ -8,13 +8,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   // Why 254 in length? https://stackoverflow.com/a/1199238
-  email     String   @unique @db.VarChar(254)
+  email    String @unique @db.VarChar(254)
   // For reference, Github limits usersnames to 39 characteres.
-  username  String   @unique @db.VarChar(39)
+  username String @unique @db.VarChar(39)
   // Why 60 in length? https://www.npmjs.com/package/bcrypt#hash-info
-  password  String   @db.VarChar(60)
+  password String @db.VarChar(60)
 
   features String[]
 
@@ -23,13 +23,14 @@ model User {
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()
 
   sessions Session[]
+  tasks    Task[]
 
   @@map("users")
 }
 
 model Session {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  token     String   @db.VarChar(96) @unique
+  token     String   @unique @db.VarChar(96)
   expiresAt DateTime @db.Timestamptz()
   createdAt DateTime @default(now()) @db.Timestamptz()
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()
@@ -38,6 +39,23 @@ model Session {
   userId String @db.Uuid
   user   User   @relation(fields: [userId], references: [id])
 
-
   @@map("sessions")
+}
+
+model Task {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  name        String    @db.VarChar(100)
+  description String?   @db.VarChar(8000)
+  dueDate     DateTime
+  finishedAt  DateTime? @db.Timestamptz()
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+  // relations
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("tasks")
 }
