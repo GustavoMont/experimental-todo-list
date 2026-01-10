@@ -3,6 +3,7 @@ import {
   ResponseTaskDTO,
   taskSchema,
   TaskSchema,
+  UpdateTaskDTO,
 } from "../schemas/task.schema";
 import { TaskRepository } from "../repositories/task.repository";
 import { NotFoundError } from "@/infra/errors";
@@ -27,6 +28,14 @@ export class TaskService {
   async findMany(where: TaskFilters = {}) {
     const tasks = await this.taskRepository.findMany(where);
     return tasks.map(this.schema.toResponseDTO);
+  }
+
+  async update(id: string, payload: UpdateTaskDTO) {
+    const validatedData = this.schema.toUpdateTaskDTO(payload);
+    const updateData = this.schema.toTaskRepository(validatedData);
+
+    const updatedTask = await this.taskRepository.update(id, updateData);
+    return this.schema.toResponseDTO(updatedTask);
   }
 
   async findById(id: string): Promise<ResponseTaskDTO> {

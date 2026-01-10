@@ -22,6 +22,13 @@ export class TaskRepository {
     return this.db.task.findUnique({ where: { id } });
   }
 
+  update(id: string, updates: Task) {
+    return this.db.task.update({
+      where: { id },
+      data: updates,
+    });
+  }
+
   deleteById(id: string) {
     return this.db.task.delete({ where: { id } });
   }

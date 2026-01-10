@@ -20,6 +20,11 @@ export class EndpointBuilder {
     return this;
   }
 
+  patch(...middlewares: MiddlewareFn[]) {
+    this.setEndpoint("PATCH", middlewares);
+    return this;
+  }
+
   delete(...middlewares: MiddlewareFn[]) {
     this.setEndpoint("DELETE", middlewares);
     return this;
@@ -85,7 +90,7 @@ export class EndpointBuilder {
 
 type TypeOrPromise<T> = T | Promise<T>;
 
-type AllowedMethods = "GET" | "POST" | "DELETE";
+type AllowedMethods = "GET" | "POST" | "PATCH" | "DELETE";
 
 type EndpointMiddlewares = {
   [key in AllowedMethods]?: MiddlewareFn[];

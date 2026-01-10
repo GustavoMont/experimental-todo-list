@@ -15,9 +15,10 @@ const endpointBuilder = createEndpointWithUser();
 const taskService = new TaskService();
 
 endpointBuilder.get(canRequest("view:task"), getHandler);
+endpointBuilder.patch(canRequest("update:task"), patchHandler);
 endpointBuilder.delete(canRequest("delete:task"), deleteHandler);
 
-export const { GET, DELETE } = endpointBuilder.build({ onError });
+export const { GET, PATCH, DELETE } = endpointBuilder.build({ onError });
 
 async function getHandler(
   req: NextRequestWithContext,
@@ -41,6 +42,38 @@ async function getHandler(
     if (error instanceof NotFoundError || error instanceof ForbiddenError) {
       throw new ForbiddenError({
         message: "Você não tem permissão para visualizar essa tarefa.",
+        action: "Verifique se informou a tarefa correta.",
+        cause: error,
+      });
+    }
+
+    throw error;
+  }
+}
+
+async function patchHandler(
+  req: NextRequestWithContext,
+  { params }: Context<{ id: string }>
+) {
+  const { id } = await params;
+
+  try {
+    const task = await taskService.findById(id);
+    const requestUser = req.context.user ?? generateAnonymousUser();
+    const canView = authorizationService.can(requestUser, "view:task", task);
+    if (!canView) {
+      throw new ForbiddenError({
+        message:
+          "Você não tem permissão para atualizar tarefa de outros usuários.",
+        action: "Verifique se você tem a permissão necessária.",
+      });
+    }
+    const updatedTask = await taskService.update(id, await req.json());
+    return NextResponse.json(updatedTask);
+  } catch (error) {
+    if (error instanceof NotFoundError || error instanceof ForbiddenError) {
+      throw new ForbiddenError({
+        message: "Você não tem permissão para atualizar essa tarefa.",
         action: "Verifique se informou a tarefa correta.",
         cause: error,
       });

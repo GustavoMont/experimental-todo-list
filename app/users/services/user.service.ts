@@ -80,6 +80,7 @@ export class UserService {
       "delete:session",
       "create:task",
       "view:task",
+      "update:task",
       "delete:task",
     ];
   }

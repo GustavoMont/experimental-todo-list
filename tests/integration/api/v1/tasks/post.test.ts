@@ -107,8 +107,8 @@ describe("[POST] /api/v1/tasks", () => {
         },
         {
           field: "dueDate",
-          message: "O prazo da tarefa é obrigatório.",
-          action: "Confira se o prazo foi inserido.",
+          message: "Insira um prazo válido.",
+          action: "Confira se o prazo foi inserido corretamente.",
         },
       ]);
       const invalidPayload = {
@@ -143,8 +143,8 @@ describe("[POST] /api/v1/tasks", () => {
         },
         {
           field: "dueDate",
-          message: "O prazo da tarefa é obrigatório.",
-          action: "Confira se o prazo foi inserido.",
+          message: "Insira um prazo válido.",
+          action: "Confira se o prazo foi inserido corretamente.",
         },
       ]);
     });
